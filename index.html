@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grade 6 Social Studies – Landscape</title>
+
+<style>
+:root{
+  --bg:#0b1220;
+  --card:#111a2e;
+  --text:#ffffff;
+  --muted:#b9c3e6;
+  --accent:#4da3ff;
+}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  padding:20px;
+  transition:0.3s;
+}
+
+.light{
+  --bg:#f5f7fa;
+  --card:#ffffff;
+  --text:#111;
+  --muted:#555;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+}
+
+.card{
+  background:var(--card);
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+
+h1{ margin-top:0; }
+
+input, textarea{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
+
+textarea{ min-height:80px; }
+
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.primary{
+  background:var(--accent);
+  color:white;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.question{ margin-bottom:15px; }
+
+.invalid{ border:2px solid red !important; }
+
+.mode-toggle, .lang-toggle{
+  background:#777;
+  color:white;
+}
+
+#message{ margin-top:10px; font-weight:bold; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="topbar">
+  <button class="mode-toggle" type="button" onclick="toggleMode()">Toggle Light/Dark</button>
+  <button class="lang-toggle" type="button" onclick="toggleLang()">English / العربية</button>
+</div>
+
+<div class="card">
+<h1 id="title">Grade 6 Social Studies – Landscape</h1>
+
+<label id="label1">First Name</label>
+<input type="text" id="firstName" autocomplete="given-name">
+
+<label id="label2">Second Name</label>
+<input type="text" id="secondName" autocomplete="family-name">
+</div>
+
+<div class="card">
+
+<div class="question">
+<p id="q1t">1. What is a mountain?</p>
+<label><input type="radio" name="q1" value="A"> A high landform</label><br>
+<label><input type="radio" name="q1" value="B"> A flat desert</label><br>
+<label><input type="radio" name="q1" value="C"> A river</label>
+</div>
+
+<div class="question">
+<p id="q2t">2. Define the term "landscape".</p>
+<textarea id="q2"></textarea>
+</div>
+
+<div class="question">
+<p id="q3t">3. Which of these is a water landform?</p>
+<label><input type="radio" name="q3" value="A"> Mountain</label><br>
+<label><input type="radio" name="q3" value="B"> River</label><br>
+<label><input type="radio" name="q3" value="C"> Plateau</label>
+</div>
+
+<div class="question">
+<p id="q4t">4. What is a valley?</p>
+<textarea id="q4"></textarea>
+</div>
+
+<div class="question">
+<p id="q5t">5. Which landform is flat and raised?</p>
+<label><input type="radio" name="q5" value="A"> Plateau</label><br>
+<label><input type="radio" name="q5" value="B"> River</label><br>
+<label><input type="radio" name="q5" value="C"> Sea</label>
+</div>
+
+<div class="question">
+<p id="q6t">6. Explain how rivers shape the landscape.</p>
+<textarea id="q6"></textarea>
+</div>
+
+<div class="question">
+<p id="q7t">7. Name two types of landscapes.</p>
+<textarea id="q7"></textarea>
+</div>
+
+<div class="question">
+<p id="q8t">8. What is a desert?</p>
+<textarea id="q8"></textarea>
+</div>
+
+<div class="question">
+<p id="q9t">9. Why are mountains important?</p>
+<textarea id="q9"></textarea>
+</div>
+
+<div class="question">
+<p id="q10t">10. Describe the landscape of the UAE.</p>
+<textarea id="q10"></textarea>
+</div>
+
+<button class="primary" id="submitBtn" type="button" onclick="submitForm()">Submit</button>
+
+<p id="message"></p>
+
+</div>
+</div>
+
+<script>
+let isArabic = false;
+
+function toggleMode(){
+  document.body.classList.toggle("light");
+}
+
+function toggleLang(){
+  isArabic = !isArabic;
+
+  if(isArabic){
+    document.documentElement.lang="ar";
+    document.body.style.direction="rtl";
+
+    document.getElementById("title").innerText="الصف السادس – الدراسات الاجتماعية – التضاريس";
+    document.getElementById("label1").innerText="الاسم الأول";
+    document.getElementById("label2").innerText="اسم العائلة";
+
+    document.getElementById("q1t").innerText="1. ما هو الجبل؟";
+    document.getElementById("q2t").innerText="2. عرف مصطلح التضاريس.";
+    document.getElementById("q3t").innerText="3. أي من التالي شكل مائي؟";
+    document.getElementById("q4t").innerText="4. ما هو الوادي؟";
+    document.getElementById("q5t").innerText="5. أي شكل أرضي مسطح ومرتفع؟";
+    document.getElementById("q6t").innerText="6. كيف تشكل الأنهار التضاريس؟";
+    document.getElementById("q7t").innerText="7. اذكر نوعين من التضاريس.";
+    document.getElementById("q8t").innerText="8. ما هي الصحراء؟";
+    document.getElementById("q9t").innerText="9. لماذا الجبال مهمة؟";
+    document.getElementById("q10t").innerText="10. صف تضاريس دولة الإمارات.";
+  } else {
+    location.reload();
+  }
+}
+
+function markInvalid(el, bad){
+  if(!el) return;
+  if(bad) el.classList.add("invalid");
+  else el.classList.remove("invalid");
+}
+
+function getRadio(name){
+  return document.querySelector(`input[name="${name}"]:checked`)?.value || "";
+}
+
+function buildPayload(){
+  const fn = document.getElementById("firstName").value.trim();
+  const sn = document.getElementById("secondName").value.trim();
+
+  return {
+    timestamp: new Date().toISOString(),
+    firstName: fn,
+    secondName: sn,
+    fullName: `${fn} ${sn}`.trim(),
+    worksheet: "g6-social-landscape-01",
+    language: isArabic ? "ar" : "en",
+    q1: getRadio("q1"),
+    q2: document.getElementById("q2").value.trim(),
+    q3: getRadio("q3"),
+    q4: document.getElementById("q4").value.trim(),
+    q5: getRadio("q5"),
+    q6: document.getElementById("q6").value.trim(),
+    q7: document.getElementById("q7").value.trim(),
+    q8: document.getElementById("q8").value.trim(),
+    q9: document.getElementById("q9").value.trim(),
+    q10: document.getElementById("q10").value.trim()
+  };
+}
+
+async function submitForm(){
+  const msg = document.getElementById("message");
+  msg.textContent = "";
+  msg.style.color = "";
+
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Submitting...";
+
+  // Validate
+  let ok = true;
+  const firstName = document.getElementById("firstName");
+  const secondName = document.getElementById("secondName");
+  const q2 = document.getElementById("q2");
+  const q4 = document.getElementById("q4");
+  const q6 = document.getElementById("q6");
+  const q7 = document.getElementById("q7");
+  const q8 = document.getElementById("q8");
+  const q9 = document.getElementById("q9");
+  const q10 = document.getElementById("q10");
+
+  const textFields = [firstName, secondName, q2, q4, q6, q7, q8, q9, q10];
+  textFields.forEach(f=>{
+    const bad = !f.value.trim();
+    markInvalid(f, bad);
+    if(bad) ok = false;
+  });
+
+  const radiosOk = !!getRadio("q1") && !!getRadio("q3") && !!getRadio("q5");
+  if(!radiosOk) ok = false;
+
+  if(!ok){
+    msg.textContent = isArabic ? "يرجى إكمال جميع الأسئلة." : "Please complete all questions.";
+    msg.style.color = "red";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit";
+    return;
+  }
+
+  // Save to Firestore (Firebase code is loaded below as module and exposes window.saveToFirestore)
+  try{
+    const payload = buildPayload();
+    await window.saveToFirestore(payload);
+
+    msg.textContent = isArabic ? "✅ تم الإرسال بنجاح!" : "✅ Submitted successfully!";
+    msg.style.color = "lime";
+
+    // lock form
+    document.querySelectorAll("input, textarea, button").forEach(el => el.disabled = true);
+  } catch (e){
+    console.error(e);
+    msg.textContent = isArabic ? "❌ فشل الإرسال. حاول مرة أخرى." : "❌ Submit failed. Please check your internet and try again.";
+    msg.style.color = "red";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit";
+  }
+}
+</script>
+
+<!-- Firebase Firestore connector -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyjHGKmWqtvRn6ikJxWQeCAocbGIZqS3Y",
+    authDomain: "mmmm-7a485.firebaseapp.com",
+    projectId: "mmmm-7a485",
+    storageBucket: "mmmm-7a485.firebasestorage.app",
+    messagingSenderId: "177735973547",
+    appId: "1:177735973547:web:0d9ea6f476b886ab6195ee",
+    measurementId: "G-6L8D7VD967"
+  };
+
+  const WORKSHEET_COLLECTION = "submissions_g6_social_landscape_01";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.saveToFirestore = async function(payload){
+    await addDoc(collection(db, WORKSHEET_COLLECTION), {
+      ...payload,
+      createdAt: serverTimestamp(),
+      pageUrl: location.href
+    });
+  };
+</script>
+
+</body>
+</html>
