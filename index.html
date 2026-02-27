@@ -1,333 +1,963 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Grade 6 Social Studies – Landscape</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grade 7 — Nested If (Interactive Pyodide Worksheet)</title>
 
-<style>
-:root{
-  --bg:#0b1220;
-  --card:#111a2e;
-  --text:#ffffff;
-  --muted:#b9c3e6;
-  --accent:#4da3ff;
-}
+  <style>
+    /* ===== Light theme (matches your sample style) ===== */
+    :root{
+      --bg:#f7f7fb;
+      --card:#ffffff;
+      --panel:#fafafa;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --good:#16a34a;
+      --bad:#dc2626;
+      --warn:#f59e0b;
+      --mono: ui-monospace, Menlo, Consolas, "SFMono-Regular", monospace;
+      --sans: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      --radius:14px;
+    }
 
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  padding:20px;
-  transition:0.3s;
-}
+    *{box-sizing:border-box}
+    body{
+      font-family:var(--sans);
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+    }
 
-.light{
-  --bg:#f5f7fa;
-  --card:#ffffff;
-  --text:#111;
-  --muted:#555;
-}
+    header{
+      padding:14px 16px;
+      position:sticky;
+      top:0;
+      background:var(--bg);
+      border-bottom:1px solid var(--line);
+      z-index:10;
+    }
 
-.container{
-  max-width:900px;
-  margin:auto;
-}
+    .wrap{max-width:980px;margin:0 auto}
 
-.card{
-  background:var(--card);
-  padding:20px;
-  border-radius:12px;
-  margin-bottom:20px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.2);
-}
+    h1{margin:0;font-size:18px}
+    .sub{color:var(--muted);font-size:12px;margin-top:4px}
 
-h1{ margin-top:0; }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
 
-input, textarea{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  margin-bottom:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  font-size:15px;
-}
+    button{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:8px 12px;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    button.primary{
+      background:var(--primary);
+      color:#fff;
+      border-color:var(--primary);
+    }
+    button:disabled{opacity:.6;cursor:not-allowed}
 
-textarea{ min-height:80px; }
+    main{padding:14px 16px}
 
-button{
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:14px;
+      margin-bottom:12px;
+    }
 
-.primary{
-  background:var(--accent);
-  color:white;
-}
+    .muted{color:var(--muted);font-size:12px}
 
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:20px;
-}
+    .qtitle{
+      font-weight:800;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.3px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
 
-.question{ margin-bottom:15px; }
+    .pill{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:4px 8px;
+      color:var(--muted);
+      font-size:12px;
+      background:#fff;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
 
-.invalid{ border:2px solid red !important; }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:#9ca3af;display:inline-block;
+    }
+    .dot.good{background:var(--good)}
+    .dot.bad{background:var(--bad)}
+    .dot.warn{background:var(--warn)}
 
-.mode-toggle, .lang-toggle{
-  background:#777;
-  color:white;
-}
+    .prompt{margin-top:8px;line-height:1.45}
 
-#message{ margin-top:10px; font-weight:bold; }
-</style>
+    /* Keep textarea LIGHT (you said never dark themed) */
+    textarea{
+      width:100%;
+      min-height:200px;
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      font-family:var(--mono);
+      font-size:13px;
+      line-height:1.35;
+      background:#ffffff;
+      color:var(--text);
+      outline:none;
+    }
+    textarea:focus{border-color:#c7d2fe; box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      background:var(--panel);
+    }
+
+    .out{
+      white-space:pre-wrap;
+      font-family:var(--mono);
+      font-size:12px;
+      line-height:1.35;
+      color:#0f172a;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      margin-right:8px;
+      margin-top:6px;
+      color:var(--muted);
+    }
+    .tag.good{border-color: rgba(22,163,74,.25); color:#14532d}
+    .tag.bad{border-color: rgba(220,38,38,.25); color:#7f1d1d}
+
+    .progressWrap{margin-top:10px}
+    .progressBar{
+      width:100%;
+      height:10px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:6px;
+    }
+    .progressFill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(37,99,235,.85), rgba(22,163,74,.85));
+      transition: width .25s ease;
+    }
+  </style>
 </head>
 
 <body>
+<header>
+  <div class="wrap">
+    <h1>Grade 7 — Nested If Statements (Interactive Coding Worksheet)</h1>
+    <div class="sub">Click <strong>Load Python</strong> once, then <strong>Run &amp; Mark</strong> on each problem.</div>
 
-<div class="container">
+    <div class="row">
+      <!-- IDs kept to match the script -->
+      <button class="primary" id="btnLoadPy">Load Python</button>
+      <button id="btnRunAll" disabled>Run All Tests</button>
+      <button id="btnReset">Reset</button>
 
-<div class="topbar">
-  <button class="mode-toggle" type="button" onclick="toggleMode()">Toggle Light/Dark</button>
-  <button class="lang-toggle" type="button" onclick="toggleLang()">English / العربية</button>
-</div>
+      <span class="pill" title="Pyodide status">
+        <span class="dot" id="pyDot"></span>
+        <span class="muted" id="pyStatusText">Status: Not loaded</span>
+      </span>
 
-<div class="card">
-<h1 id="title">Grade 6 Social Studies – Landscape</h1>
+      <span class="pill" title="Overall progress">
+        <span class="dot good"></span>
+        <span class="muted">Progress:</span>
+        <strong id="progressText">0 / 6 problems</strong>
+      </span>
+    </div>
 
-<label id="label1">First Name</label>
-<input type="text" id="firstName" autocomplete="given-name">
+    <div class="progressWrap">
+      <div class="progressBar" aria-label="progress bar">
+        <div class="progressFill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+</header>
 
-<label id="label2">Second Name</label>
-<input type="text" id="secondName" autocomplete="family-name">
-</div>
+<main>
+  <div class="wrap">
 
-<div class="card">
+    <div class="card">
+      <div class="qtitle">CHECKLIST (student)</div>
+      <div class="muted" style="margin-top:8px;line-height:1.5">
+        1) Load Python • 2) Write your function • 3) Run tests • 4) Fix failing cases • 5) Finish all 6
+      </div>
+    </div>
 
-<div class="question">
-<p id="q1t">1. What is a mountain?</p>
-<label><input type="radio" name="q1" value="A"> A high landform</label><br>
-<label><input type="radio" name="q1" value="B"> A flat desert</label><br>
-<label><input type="radio" name="q1" value="C"> A river</label>
-</div>
+    <!-- PROBLEM 1 -->
+    <div class="card" id="p1">
+      <div class="qtitle">
+        <span>QUESTION 1 • Basic age gate</span>
+        <span class="pill"><span class="dot" id="p1Dot"></span> <span class="muted">Status</span></span>
+      </div>
 
-<div class="question">
-<p id="q2t">2. Define the term "landscape".</p>
-<textarea id="q2"></textarea>
-</div>
+      <div class="prompt">
+        Write <strong>check_age(age)</strong>:
+        <ul class="muted" style="margin:8px 0 0 18px">
+          <li>Under 13 → <strong>"Child"</strong></li>
+          <li>13–17 → <strong>"Teen"</strong>, but inside that if age is 16 or 17 → <strong>"Older Teen"</strong></li>
+          <li>18+ → <strong>"Adult"</strong></li>
+        </ul>
+      </div>
 
-<div class="question">
-<p id="q3t">3. Which of these is a water landform?</p>
-<label><input type="radio" name="q3" value="A"> Mountain</label><br>
-<label><input type="radio" name="q3" value="B"> River</label><br>
-<label><input type="radio" name="q3" value="C"> Plateau</label>
-</div>
+      <div id="p1_tags"></div>
 
-<div class="question">
-<p id="q4t">4. What is a valley?</p>
-<textarea id="q4"></textarea>
-</div>
+      <div class="grid2">
+        <div>
+          <textarea id="code1" spellcheck="false" placeholder="# Problem 1
+def check_age(age):
+    # your code here
+    pass"></textarea>
 
-<div class="question">
-<p id="q5t">5. Which landform is flat and raised?</p>
-<label><input type="radio" name="q5" value="A"> Plateau</label><br>
-<label><input type="radio" name="q5" value="B"> River</label><br>
-<label><input type="radio" name="q5" value="C"> Sea</label>
-</div>
+          <div class="row">
+            <button class="primary btnRun" data-run="1" disabled>Run &amp; Mark</button>
+            <button class="btnCopy" data-copy="1">Copy Starter</button>
+            <button class="btnClear" data-clear="1">Clear</button>
+            <span class="muted" id="p1_status">Python not loaded</span>
+          </div>
+        </div>
 
-<div class="question">
-<p id="q6t">6. Explain how rivers shape the landscape.</p>
-<textarea id="q6"></textarea>
-</div>
+        <div class="panel">
+          <div class="qtitle">FEEDBACK</div>
+          <div class="muted" style="margin-top:6px">
+            Requirements:
+            <span class="tag" title="Nested if indicator"><span class="dot" id="p1ReqNested"></span> Nested if</span>
+            <span class="tag" title="Uses return"><span class="dot" id="p1ReqReturn"></span> return</span>
+          </div>
+          <div class="out" id="out1" style="margin-top:10px">—</div>
 
-<div class="question">
-<p id="q7t">7. Name two types of landscapes.</p>
-<textarea id="q7"></textarea>
-</div>
+          <div class="muted" style="margin-top:10px">Tests:</div>
+          <div class="muted">
+            <div data-test="p1t1">• check_age(10) → "Child"</div>
+            <div data-test="p1t2">• check_age(14) → "Teen"</div>
+            <div data-test="p1t3">• check_age(16) → "Older Teen"</div>
+            <div data-test="p1t4">• check_age(21) → "Adult"</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<div class="question">
-<p id="q8t">8. What is a desert?</p>
-<textarea id="q8"></textarea>
-</div>
+    <!-- PROBLEM 2 -->
+    <div class="card" id="p2">
+      <div class="qtitle">
+        <span>QUESTION 2 • Weather advice (nested)</span>
+        <span class="pill"><span class="dot" id="p2Dot"></span> <span class="muted">Status</span></span>
+      </div>
 
-<div class="question">
-<p id="q9t">9. Why are mountains important?</p>
-<textarea id="q9"></textarea>
-</div>
+      <div class="prompt">
+        Write <strong>weather_advice(temp, raining)</strong>:
+        <ul class="muted" style="margin:8px 0 0 18px">
+          <li>If raining and temp &lt; 15 → "Wear a coat &amp; take an umbrella"</li>
+          <li>If raining and temp ≥ 15 → "Take an umbrella"</li>
+          <li>If not raining and temp ≥ 30 → "Stay hydrated"</li>
+          <li>If not raining and temp &lt; 30 → "Have a nice day"</li>
+        </ul>
+      </div>
 
-<div class="question">
-<p id="q10t">10. Describe the landscape of the UAE.</p>
-<textarea id="q10"></textarea>
-</div>
+      <div id="p2_tags"></div>
 
-<button class="primary" id="submitBtn" type="button" onclick="submitForm()">Submit</button>
+      <div class="grid2">
+        <div>
+          <textarea id="code2" spellcheck="false" placeholder="# Problem 2
+def weather_advice(temp, raining):
+    # your code here
+    pass"></textarea>
 
-<p id="message"></p>
+          <div class="row">
+            <button class="primary btnRun" data-run="2" disabled>Run &amp; Mark</button>
+            <button class="btnCopy" data-copy="2">Copy Starter</button>
+            <button class="btnClear" data-clear="2">Clear</button>
+            <span class="muted" id="p2_status">Python not loaded</span>
+          </div>
+        </div>
 
-</div>
-</div>
+        <div class="panel">
+          <div class="qtitle">FEEDBACK</div>
+          <div class="muted" style="margin-top:6px">
+            Requirements:
+            <span class="tag"><span class="dot" id="p2ReqNested"></span> Nested if</span>
+            <span class="tag"><span class="dot" id="p2ReqBool"></span> and/or</span>
+            <span class="tag"><span class="dot" id="p2ReqReturn"></span> return</span>
+          </div>
+          <div class="out" id="out2" style="margin-top:10px">—</div>
+
+          <div class="muted" style="margin-top:10px">Tests:</div>
+          <div class="muted">
+            <div data-test="p2t1">• weather_advice(10, True) → coat + umbrella</div>
+            <div data-test="p2t2">• weather_advice(20, True) → umbrella</div>
+            <div data-test="p2t3">• weather_advice(32, False) → hydrate</div>
+            <div data-test="p2t4">• weather_advice(24, False) → nice day</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROBLEM 3 -->
+    <div class="card" id="p3">
+      <div class="qtitle">
+        <span>QUESTION 3 • Game score bonus</span>
+        <span class="pill"><span class="dot" id="p3Dot"></span> <span class="muted">Status</span></span>
+      </div>
+
+      <div class="prompt">
+        Write <strong>score_bonus(score, streak)</strong>:
+        <ul class="muted" style="margin:8px 0 0 18px">
+          <li>score &lt; 50 → 0</li>
+          <li>50–79 → (streak True? 5 : 2)</li>
+          <li>80+ → (streak True? 15 : 10)</li>
+        </ul>
+      </div>
+
+      <div id="p3_tags"></div>
+
+      <div class="grid2">
+        <div>
+          <textarea id="code3" spellcheck="false" placeholder="# Problem 3
+def score_bonus(score, streak):
+    # your code here
+    pass"></textarea>
+
+          <div class="row">
+            <button class="primary btnRun" data-run="3" disabled>Run &amp; Mark</button>
+            <button class="btnCopy" data-copy="3">Copy Starter</button>
+            <button class="btnClear" data-clear="3">Clear</button>
+            <span class="muted" id="p3_status">Python not loaded</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="qtitle">FEEDBACK</div>
+          <div class="muted" style="margin-top:6px">
+            Requirements:
+            <span class="tag"><span class="dot" id="p3ReqNested"></span> Nested if</span>
+            <span class="tag"><span class="dot" id="p3ReqElif"></span> elif</span>
+            <span class="tag"><span class="dot" id="p3ReqReturn"></span> return</span>
+          </div>
+          <div class="out" id="out3" style="margin-top:10px">—</div>
+
+          <div class="muted" style="margin-top:10px">Tests:</div>
+          <div class="muted">
+            <div data-test="p3t1">• score_bonus(40, True) → 0</div>
+            <div data-test="p3t2">• score_bonus(70, False) → 2</div>
+            <div data-test="p3t3">• score_bonus(55, True) → 5</div>
+            <div data-test="p3t4">• score_bonus(90, True) → 15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROBLEM 4 -->
+    <div class="card" id="p4">
+      <div class="qtitle">
+        <span>QUESTION 4 • Triangle checker (valid + type)</span>
+        <span class="pill"><span class="dot" id="p4Dot"></span> <span class="muted">Status</span></span>
+      </div>
+
+      <div class="prompt">
+        Write <strong>triangle_type(a, b, c)</strong>:
+        <ul class="muted" style="margin:8px 0 0 18px">
+          <li>If not a valid triangle → "Not a triangle"</li>
+          <li>Else → "Equilateral" / "Isosceles" / "Scalene"</li>
+        </ul>
+      </div>
+
+      <div id="p4_tags"></div>
+
+      <div class="grid2">
+        <div>
+          <textarea id="code4" spellcheck="false" placeholder="# Problem 4
+def triangle_type(a, b, c):
+    # your code here
+    pass"></textarea>
+
+          <div class="row">
+            <button class="primary btnRun" data-run="4" disabled>Run &amp; Mark</button>
+            <button class="btnCopy" data-copy="4">Copy Starter</button>
+            <button class="btnClear" data-clear="4">Clear</button>
+            <span class="muted" id="p4_status">Python not loaded</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="qtitle">FEEDBACK</div>
+          <div class="muted" style="margin-top:6px">
+            Requirements:
+            <span class="tag"><span class="dot" id="p4ReqNested"></span> Nested if</span>
+            <span class="tag"><span class="dot" id="p4ReqBool"></span> and/or</span>
+            <span class="tag"><span class="dot" id="p4ReqReturn"></span> return</span>
+          </div>
+          <div class="out" id="out4" style="margin-top:10px">—</div>
+
+          <div class="muted" style="margin-top:10px">Tests:</div>
+          <div class="muted">
+            <div data-test="p4t1">• triangle_type(1,2,3) → "Not a triangle"</div>
+            <div data-test="p4t2">• triangle_type(3,3,3) → "Equilateral"</div>
+            <div data-test="p4t3">• triangle_type(4,4,6) → "Isosceles"</div>
+            <div data-test="p4t4">• triangle_type(4,5,6) → "Scalene"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROBLEM 5 -->
+    <div class="card" id="p5">
+      <div class="qtitle">
+        <span>QUESTION 5 • Ticket pricing (multi-rules)</span>
+        <span class="pill"><span class="dot" id="p5Dot"></span> <span class="muted">Status</span></span>
+      </div>
+
+      <div class="prompt">
+        Write <strong>ticket_price(age, student, peak)</strong>:
+        <ul class="muted" style="margin:8px 0 0 18px">
+          <li>Base 50</li>
+          <li>If age &lt; 12 → 25</li>
+          <li>Else if age ≥ 60 → 30</li>
+          <li>If student True and 12 ≤ age ≤ 59 → -10 (nested if)</li>
+          <li>If peak True → +5</li>
+        </ul>
+      </div>
+
+      <div id="p5_tags"></div>
+
+      <div class="grid2">
+        <div>
+          <textarea id="code5" spellcheck="false" placeholder="# Problem 5
+def ticket_price(age, student, peak):
+    # your code here
+    pass"></textarea>
+
+          <div class="row">
+            <button class="primary btnRun" data-run="5" disabled>Run &amp; Mark</button>
+            <button class="btnCopy" data-copy="5">Copy Starter</button>
+            <button class="btnClear" data-clear="5">Clear</button>
+            <span class="muted" id="p5_status">Python not loaded</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="qtitle">FEEDBACK</div>
+          <div class="muted" style="margin-top:6px">
+            Requirements:
+            <span class="tag"><span class="dot" id="p5ReqNested"></span> Nested if</span>
+            <span class="tag"><span class="dot" id="p5ReqElif"></span> elif</span>
+            <span class="tag"><span class="dot" id="p5ReqReturn"></span> return</span>
+          </div>
+          <div class="out" id="out5" style="margin-top:10px">—</div>
+
+          <div class="muted" style="margin-top:10px">Tests:</div>
+          <div class="muted">
+            <div data-test="p5t1">• ticket_price(10, True, False) → 25</div>
+            <div data-test="p5t2">• ticket_price(16, True, False) → 40</div>
+            <div data-test="p5t3">• ticket_price(60, False, True) → 35</div>
+            <div data-test="p5t4">• ticket_price(30, False, True) → 55</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROBLEM 6 -->
+    <div class="card" id="p6">
+      <div class="qtitle">
+        <span>QUESTION 6 • Login security rules (3-level nesting)</span>
+        <span class="pill"><span class="dot" id="p6Dot"></span> <span class="muted">Status</span></span>
+      </div>
+
+      <div class="prompt">
+        Write <strong>login_result(username, password, otp_ok)</strong>:
+        <ul class="muted" style="margin:8px 0 0 18px">
+          <li>Valid username: "student"</li>
+          <li>Valid password: "CS7!"</li>
+          <li>Wrong username → "Invalid username"</li>
+          <li>Else if wrong password → "Invalid password"</li>
+          <li>Else if otp_ok True → "Login successful"</li>
+          <li>Else → "OTP required"</li>
+        </ul>
+      </div>
+
+      <div id="p6_tags"></div>
+
+      <div class="grid2">
+        <div>
+          <textarea id="code6" spellcheck="false" placeholder="# Problem 6
+def login_result(username, password, otp_ok):
+    # your code here
+    pass"></textarea>
+
+          <div class="row">
+            <button class="primary btnRun" data-run="6" disabled>Run &amp; Mark</button>
+            <button class="btnCopy" data-copy="6">Copy Starter</button>
+            <button class="btnClear" data-clear="6">Clear</button>
+            <span class="muted" id="p6_status">Python not loaded</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="qtitle">FEEDBACK</div>
+          <div class="muted" style="margin-top:6px">
+            Requirements:
+            <span class="tag"><span class="dot" id="p6ReqNested"></span> Nested if</span>
+            <span class="tag"><span class="dot" id="p6ReqReturn"></span> return</span>
+            <span class="tag"><span class="dot" id="p6ReqStrings"></span> uses "student" + "CS7!"</span>
+          </div>
+          <div class="out" id="out6" style="margin-top:10px">—</div>
+
+          <div class="muted" style="margin-top:10px">Tests:</div>
+          <div class="muted">
+            <div data-test="p6t1">• login_result("admin","CS7!", True) → "Invalid username"</div>
+            <div data-test="p6t2">• login_result("student","wrong", True) → "Invalid password"</div>
+            <div data-test="p6t3">• login_result("student","CS7!", False) → "OTP required"</div>
+            <div data-test="p6t4">• login_result("student","CS7!", True) → "Login successful"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Utilities -->
+    <div class="card">
+      <div class="qtitle">EXPORT</div>
+      <div class="row" style="margin-top:10px">
+        <button id="btnCopyAll" disabled>Copy All My Code</button>
+        <button id="btnDownload" disabled>Download .txt</button>
+        <span class="muted">Enabled after Python loads.</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ✅ Paste your EXISTING script here (the one we already made). -->
+<!-- IMPORTANT: Keep it LIGHT only. The script I gave you already forces light. -->
 
 <script>
-let isArabic = false;
+/* =========================================================
+   SCRIPT for Nested If Worksheet (LIGHT THEME + Pyodide)
+   (Same script logic as before, adapted to this HTML IDs)
+   ========================================================= */
 
-function toggleMode(){
-  document.body.classList.toggle("light");
-}
+(() => {
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-function toggleLang(){
-  isArabic = !isArabic;
+  // Basic status UI
+  const btnLoadPy = $("#btnLoadPy");
+  const btnRunAll = $("#btnRunAll");
+  const btnReset = $("#btnReset");
+  const btnCopyAll = $("#btnCopyAll");
+  const btnDownload = $("#btnDownload");
+  const pyDot = $("#pyDot");
+  const pyStatusText = $("#pyStatusText");
 
-  if(isArabic){
-    document.documentElement.lang="ar";
-    document.body.style.direction="rtl";
+  const progressText = $("#progressText");
+  const progressFill = $("#progressFill");
 
-    document.getElementById("title").innerText="الصف السادس – الدراسات الاجتماعية – التضاريس";
-    document.getElementById("label1").innerText="الاسم الأول";
-    document.getElementById("label2").innerText="اسم العائلة";
-
-    document.getElementById("q1t").innerText="1. ما هو الجبل؟";
-    document.getElementById("q2t").innerText="2. عرف مصطلح التضاريس.";
-    document.getElementById("q3t").innerText="3. أي من التالي شكل مائي؟";
-    document.getElementById("q4t").innerText="4. ما هو الوادي؟";
-    document.getElementById("q5t").innerText="5. أي شكل أرضي مسطح ومرتفع؟";
-    document.getElementById("q6t").innerText="6. كيف تشكل الأنهار التضاريس؟";
-    document.getElementById("q7t").innerText="7. اذكر نوعين من التضاريس.";
-    document.getElementById("q8t").innerText="8. ما هي الصحراء؟";
-    document.getElementById("q9t").innerText="9. لماذا الجبال مهمة؟";
-    document.getElementById("q10t").innerText="10. صف تضاريس دولة الإمارات.";
-  } else {
-    location.reload();
+  function setPyStatus(kind, text){
+    if (!pyStatusText || !pyDot) return;
+    pyStatusText.textContent = "Status: " + text;
+    pyDot.classList.remove("good","warn","bad");
+    if(kind) pyDot.classList.add(kind);
   }
-}
 
-function markInvalid(el, bad){
-  if(!el) return;
-  if(bad) el.classList.add("invalid");
-  else el.classList.remove("invalid");
-}
+  function setProblemDot(problemId, kind){
+    const dot = document.getElementById(`p${problemId}Dot`);
+    if(!dot) return;
+    dot.classList.remove("good","warn","bad");
+    if(kind) dot.classList.add(kind);
+  }
 
-function getRadio(name){
-  return document.querySelector(`input[name="${name}"]:checked`)?.value || "";
-}
+  async function copyText(text){
+    const t = String(text ?? "");
+    try{
+      await navigator.clipboard.writeText(t);
+    }catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = t;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+  }
 
-function buildPayload(){
-  const fn = document.getElementById("firstName").value.trim();
-  const sn = document.getElementById("secondName").value.trim();
+  function downloadText(filename, text){
+    const blob = new Blob([text], { type:"text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); document.body.removeChild(a); }, 0);
+  }
 
-  return {
-    timestamp: new Date().toISOString(),
-    firstName: fn,
-    secondName: sn,
-    fullName: `${fn} ${sn}`.trim(),
-    worksheet: "g6-social-landscape-01",
-    language: isArabic ? "ar" : "en",
-    q1: getRadio("q1"),
-    q2: document.getElementById("q2").value.trim(),
-    q3: getRadio("q3"),
-    q4: document.getElementById("q4").value.trim(),
-    q5: getRadio("q5"),
-    q6: document.getElementById("q6").value.trim(),
-    q7: document.getElementById("q7").value.trim(),
-    q8: document.getElementById("q8").value.trim(),
-    q9: document.getElementById("q9").value.trim(),
-    q10: document.getElementById("q10").value.trim()
+  // Pyodide
+  let pyodide = null;
+  let loading = false;
+
+  function injectPyodideScript(){
+    return new Promise((resolve,reject)=>{
+      if(window.loadPyodide) return resolve();
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("Failed to load pyodide.js"));
+      document.head.appendChild(s);
+    });
+  }
+
+  function enableRuntimeButtons(on){
+    if(btnRunAll) btnRunAll.disabled = !on;
+    if(btnCopyAll) btnCopyAll.disabled = !on;
+    if(btnDownload) btnDownload.disabled = !on;
+    $$(".btnRun").forEach(b => b.disabled = !on);
+    for(let i=1;i<=6;i++){
+      const s = document.getElementById(`p${i}_status`);
+      if(s) s.textContent = on ? "Python loaded ✅" : "Python not loaded";
+    }
+  }
+
+  async function loadPython(){
+    if(pyodide || loading) return;
+    loading = true;
+    if(btnLoadPy) btnLoadPy.disabled = true;
+    setPyStatus("warn","Loading…");
+
+    try{
+      await injectPyodideScript();
+      pyodide = await window.loadPyodide({ indexURL:"https://cdn.jsdelivr.net/pyodide/v0.25.1/full/" });
+      setPyStatus("good","Python loaded ✅");
+      enableRuntimeButtons(true);
+      if(btnLoadPy) btnLoadPy.textContent = "Python loaded ✅";
+    }catch(e){
+      console.error(e);
+      setPyStatus("bad","Failed ❌");
+      if(btnLoadPy){ btnLoadPy.disabled = false; btnLoadPy.textContent = "Load Python"; }
+      enableRuntimeButtons(false);
+      alert(String(e));
+    }finally{
+      loading = false;
+    }
+  }
+
+  // Problems + tests
+  const PROBLEMS = {
+    1:{ fn:"check_age", starter:`# Problem 1
+def check_age(age):
+    # Under 13: "Child"
+    # 13-17: "Teen" BUT if 16 or 17 -> "Older Teen"
+    # 18+: "Adult"
+    pass
+`,
+        tests:[
+          {id:"p1t1", args:[10], expected:"Child"},
+          {id:"p1t2", args:[14], expected:"Teen"},
+          {id:"p1t3", args:[16], expected:"Older Teen"},
+          {id:"p1t4", args:[21], expected:"Adult"},
+        ],
+        req:{ nested:"p1ReqNested", ret:"p1ReqReturn" }
+    },
+    2:{ fn:"weather_advice", starter:`# Problem 2
+def weather_advice(temp, raining):
+    # your code here
+    pass
+`,
+        tests:[
+          {id:"p2t1", args:[10, True], expected:"Wear a coat & take an umbrella"},
+          {id:"p2t2", args:[20, True], expected:"Take an umbrella"},
+          {id:"p2t3", args:[32, False], expected:"Stay hydrated"},
+          {id:"p2t4", args:[24, False], expected:"Have a nice day"},
+        ],
+        req:{ nested:"p2ReqNested", bool:"p2ReqBool", ret:"p2ReqReturn" }
+    },
+    3:{ fn:"score_bonus", starter:`# Problem 3
+def score_bonus(score, streak):
+    # your code here
+    pass
+`,
+        tests:[
+          {id:"p3t1", args:[40, True], expected:0},
+          {id:"p3t2", args:[70, False], expected:2},
+          {id:"p3t3", args:[55, True], expected:5},
+          {id:"p3t4", args:[90, True], expected:15},
+        ],
+        req:{ nested:"p3ReqNested", elif:"p3ReqElif", ret:"p3ReqReturn" }
+    },
+    4:{ fn:"triangle_type", starter:`# Problem 4
+def triangle_type(a, b, c):
+    # your code here
+    pass
+`,
+        tests:[
+          {id:"p4t1", args:[1,2,3], expected:"Not a triangle"},
+          {id:"p4t2", args:[3,3,3], expected:"Equilateral"},
+          {id:"p4t3", args:[4,4,6], expected:"Isosceles"},
+          {id:"p4t4", args:[4,5,6], expected:"Scalene"},
+        ],
+        req:{ nested:"p4ReqNested", bool:"p4ReqBool", ret:"p4ReqReturn" }
+    },
+    5:{ fn:"ticket_price", starter:`# Problem 5
+def ticket_price(age, student, peak):
+    # your code here
+    pass
+`,
+        tests:[
+          {id:"p5t1", args:[10, True, False], expected:25},
+          {id:"p5t2", args:[16, True, False], expected:40},
+          {id:"p5t3", args:[60, False, True], expected:35},
+          {id:"p5t4", args:[30, False, True], expected:55},
+        ],
+        req:{ nested:"p5ReqNested", elif:"p5ReqElif", ret:"p5ReqReturn" }
+    },
+    6:{ fn:"login_result", starter:`# Problem 6
+def login_result(username, password, otp_ok):
+    # your code here
+    pass
+`,
+        tests:[
+          {id:"p6t1", args:["admin","CS7!", True], expected:"Invalid username"},
+          {id:"p6t2", args:["student","wrong", True], expected:"Invalid password"},
+          {id:"p6t3", args:["student","CS7!", False], expected:"OTP required"},
+          {id:"p6t4", args:["student","CS7!", True], expected:"Login successful"},
+        ],
+        req:{ nested:"p6ReqNested", ret:"p6ReqReturn", strings:"p6ReqStrings" }
+    },
   };
-}
 
-async function submitForm(){
-  const msg = document.getElementById("message");
-  msg.textContent = "";
-  msg.style.color = "";
+  function setReqDot(id, ok){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove("good","bad","warn");
+    el.classList.add(ok ? "good" : "bad");
+  }
 
-  const submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Submitting...";
+  function updateReqDots(problemId){
+    const p = PROBLEMS[problemId];
+    const code = (document.getElementById("code"+problemId)?.value || "");
 
-  // Validate
-  let ok = true;
-  const firstName = document.getElementById("firstName");
-  const secondName = document.getElementById("secondName");
-  const q2 = document.getElementById("q2");
-  const q4 = document.getElementById("q4");
-  const q6 = document.getElementById("q6");
-  const q7 = document.getElementById("q7");
-  const q8 = document.getElementById("q8");
-  const q9 = document.getElementById("q9");
-  const q10 = document.getElementById("q10");
+    const hasNested = /if[^\n]*:\s*\n[ \t]+if\b/.test(code);
+    const hasReturn = /\breturn\b/.test(code);
+    const hasElif = /\belif\b/.test(code);
+    const hasBool = /\band\b|\bor\b/.test(code);
+    const hasStrings = (/"student"|'student'/.test(code) && /"CS7!"|'CS7!'/.test(code));
 
-  const textFields = [firstName, secondName, q2, q4, q6, q7, q8, q9, q10];
-  textFields.forEach(f=>{
-    const bad = !f.value.trim();
-    markInvalid(f, bad);
-    if(bad) ok = false;
+    if(p.req.nested) setReqDot(p.req.nested, hasNested);
+    if(p.req.ret) setReqDot(p.req.ret, hasReturn);
+    if(p.req.elif) setReqDot(p.req.elif, hasElif);
+    if(p.req.bool) setReqDot(p.req.bool, hasBool);
+    if(p.req.strings) setReqDot(p.req.strings, hasStrings);
+  }
+
+  const completed = new Set();
+  function updateProgress(){
+    const done = completed.size;
+    const total = 6;
+    if(progressText) progressText.textContent = `${done} / ${total} problems`;
+    if(progressFill) progressFill.style.width = `${Math.round((done/total)*100)}%`;
+  }
+
+  async function runProblem(problemId){
+    if(!pyodide){
+      alert("Click Load Python first.");
+      return;
+    }
+    const p = PROBLEMS[problemId];
+    updateReqDots(problemId);
+
+    const code = (document.getElementById("code"+problemId)?.value || "");
+    const outEl = document.getElementById("out"+problemId);
+    if(outEl) outEl.textContent = "Running…";
+
+    pyodide.globals.set("STUDENT_CODE", code);
+    pyodide.globals.set("FUNC_NAME", p.fn);
+    pyodide.globals.set("TESTS", p.tests.map(t => ({ args:t.args, expected:t.expected, id:t.id })));
+
+    const harness = `
+import json
+student_code = STUDENT_CODE
+func_name = FUNC_NAME
+tests = TESTS
+
+def run():
+    result = {"ok": False, "error": None, "items": []}
+    ns = {}
+    try:
+        exec(student_code, ns)
+    except Exception as e:
+        result["error"] = f"Your code has an error: {type(e).__name__}: {e}"
+        for t in tests:
+            result["items"].append({"id": t["id"], "pass": False, "expected": t["expected"], "actual": None, "exception": result["error"]})
+        return json.dumps(result)
+
+    if func_name not in ns or not callable(ns[func_name]):
+        result["error"] = f"Function '{func_name}' not found."
+        for t in tests:
+            result["items"].append({"id": t["id"], "pass": False, "expected": t["expected"], "actual": None, "exception": result["error"]})
+        return json.dumps(result)
+
+    f = ns[func_name]
+    all_ok = True
+    for t in tests:
+        args = t["args"]
+        expected = t["expected"]
+        try:
+            actual = f(*args) if isinstance(args,(list,tuple)) else f(args)
+            ok = (actual == expected)
+            if not ok: all_ok = False
+            result["items"].append({"id": t["id"], "pass": bool(ok), "expected": expected, "actual": actual, "exception": None})
+        except Exception as e:
+            all_ok = False
+            result["items"].append({"id": t["id"], "pass": False, "expected": expected, "actual": None, "exception": f"{type(e).__name__}: {e}"})
+
+    result["ok"] = bool(all_ok)
+    return json.dumps(result)
+
+run()
+`;
+
+    let parsed;
+    try{
+      parsed = JSON.parse(await pyodide.runPythonAsync(harness));
+    }catch(e){
+      parsed = { ok:false, error:String(e), items:[] };
+    }
+
+    let passCount = 0;
+    const lines = [];
+    for(const item of parsed.items){
+      if(item.pass){
+        passCount++;
+        lines.push(`Test ${item.id}: ✅ PASS`);
+      }else{
+        const exp = JSON.stringify(item.expected);
+        const got = item.exception ? `Exception: ${item.exception}` : `Got: ${JSON.stringify(item.actual)}`;
+        lines.push(`Test ${item.id}: ❌ FAIL\nExpected: ${exp}\n${got}`);
+      }
+    }
+
+    if(parsed.error) lines.unshift("ERROR: " + parsed.error);
+
+    if(outEl) outEl.textContent = lines.join("\n\n");
+
+    if(passCount === p.tests.length && !parsed.error){
+      completed.add(problemId);
+      setProblemDot(problemId, "good");
+    }else{
+      completed.delete(problemId);
+      setProblemDot(problemId, parsed.error ? "bad" : "warn");
+    }
+    updateProgress();
+  }
+
+  async function runAll(){
+    if(!pyodide){ alert("Click Load Python first."); return; }
+    for(let i=1;i<=6;i++) await runProblem(i);
+  }
+
+  function resetAll(){
+    for(let i=1;i<=6;i++){
+      const ta = document.getElementById("code"+i);
+      const out = document.getElementById("out"+i);
+      if(ta) ta.value = PROBLEMS[i].starter;
+      if(out) out.textContent = "—";
+      setProblemDot(i,"");
+      updateReqDots(i);
+    }
+    completed.clear();
+    updateProgress();
+  }
+
+  // Wire buttons
+  btnLoadPy && btnLoadPy.addEventListener("click", loadPython);
+  btnRunAll && btnRunAll.addEventListener("click", runAll);
+  btnReset && btnReset.addEventListener("click", resetAll);
+
+  $$(".btnRun").forEach(btn => btn.addEventListener("click", () => runProblem(parseInt(btn.dataset.run,10))));
+  $$(".btnCopy").forEach(btn => btn.addEventListener("click", () => copyText(PROBLEMS[parseInt(btn.dataset.copy,10)].starter)));
+  $$(".btnClear").forEach(btn => btn.addEventListener("click", () => {
+    const id = parseInt(btn.dataset.clear,10);
+    const ta = document.getElementById("code"+id);
+    const out = document.getElementById("out"+id);
+    if(ta) ta.value = "";
+    if(out) out.textContent = "—";
+    setProblemDot(id,"");
+    updateReqDots(id);
+    completed.delete(id);
+    updateProgress();
+  }));
+
+  btnCopyAll && btnCopyAll.addEventListener("click", async () => {
+    const parts = [];
+    for(let i=1;i<=6;i++){
+      parts.push(`# Q${i}: ${PROBLEMS[i].fn}\n` + (document.getElementById("code"+i)?.value || "").trim() + "\n");
+    }
+    await copyText(parts.join("\n"));
   });
 
-  const radiosOk = !!getRadio("q1") && !!getRadio("q3") && !!getRadio("q5");
-  if(!radiosOk) ok = false;
+  btnDownload && btnDownload.addEventListener("click", () => {
+    const parts = [];
+    for(let i=1;i<=6;i++){
+      parts.push(`# Q${i}: ${PROBLEMS[i].fn}\n` + (document.getElementById("code"+i)?.value || "").trim() + "\n");
+    }
+    downloadText("nested-if-solutions.txt", parts.join("\n"));
+  });
 
-  if(!ok){
-    msg.textContent = isArabic ? "يرجى إكمال جميع الأسئلة." : "Please complete all questions.";
-    msg.style.color = "red";
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit";
-    return;
+  // Live requirement dots
+  for(let i=1;i<=6;i++){
+    const ta = document.getElementById("code"+i);
+    if(ta){
+      ta.addEventListener("input", () => updateReqDots(i));
+    }
   }
 
-  // Save to Firestore (Firebase code is loaded below as module and exposes window.saveToFirestore)
-  try{
-    const payload = buildPayload();
-    await window.saveToFirestore(payload);
-
-    msg.textContent = isArabic ? "✅ تم الإرسال بنجاح!" : "✅ Submitted successfully!";
-    msg.style.color = "lime";
-
-    // lock form
-    document.querySelectorAll("input, textarea, button").forEach(el => el.disabled = true);
-  } catch (e){
-    console.error(e);
-    msg.textContent = isArabic ? "❌ فشل الإرسال. حاول مرة أخرى." : "❌ Submit failed. Please check your internet and try again.";
-    msg.style.color = "red";
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit";
-  }
-}
-</script>
-
-<!-- Firebase Firestore connector -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCyjHGKmWqtvRn6ikJxWQeCAocbGIZqS3Y",
-    authDomain: "mmmm-7a485.firebaseapp.com",
-    projectId: "mmmm-7a485",
-    storageBucket: "mmmm-7a485.firebasestorage.app",
-    messagingSenderId: "177735973547",
-    appId: "1:177735973547:web:0d9ea6f476b886ab6195ee",
-    measurementId: "G-6L8D7VD967"
-  };
-
-  const WORKSHEET_COLLECTION = "submissions_g6_social_landscape_01";
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  window.saveToFirestore = async function(payload){
-    await addDoc(collection(db, WORKSHEET_COLLECTION), {
-      ...payload,
-      createdAt: serverTimestamp(),
-      pageUrl: location.href
-    });
-  };
+  // Initial fill (starter code)
+  resetAll();
+  setPyStatus("", "Not loaded");
+  enableRuntimeButtons(false);
+})();
 </script>
 
 </body>
